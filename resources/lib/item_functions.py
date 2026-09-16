@@ -364,6 +364,10 @@ def add_gui_item(url, item_details, display_options, folder=True, default_sort=F
             u += '&name_format=' + quote(item_details.name_format)
         if default_sort:
             u += '&sort=none'
+        title = item_details.name
+        if item_details.item_type == "Season" and item_details.series_name:
+            title = "{} · {}".format(item_details.series_name, title)
+        u += '&title=' + quote(title)
     else:
         u = sys.argv[0] + "?item_id=" + url + "&mode=PLAY"
 
@@ -631,6 +635,7 @@ def add_gui_item(url, item_details, display_options, folder=True, default_sort=F
 
             item_properties["TotalSeasons"] = str(item_details.total_seasons)
             item_properties["TotalEpisodes"] = str(item_details.total_episodes)
+            item_properties["UnWatchedEpisodes"] = str(item_details.unwatched_episodes)
             item_properties["NumEpisodes"] = str(item_details.number_episodes)
 
             video_tag.setRating(item_details.community_rating, 0, "imdb", True)
@@ -712,6 +717,7 @@ def add_gui_item(url, item_details, display_options, folder=True, default_sort=F
 
             item_properties["TotalSeasons"] = str(item_details.total_seasons)
             item_properties["TotalEpisodes"] = str(item_details.total_episodes)
+            item_properties["UnWatchedEpisodes"] = str(item_details.unwatched_episodes)
             item_properties["NumEpisodes"] = str(item_details.number_episodes)
 
             list_item.setRating("imdb", item_details.community_rating, 0, True)

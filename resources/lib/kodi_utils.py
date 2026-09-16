@@ -7,6 +7,7 @@ import sys
 import xbmcgui
 import xbmcplugin
 import xbmcaddon
+from six.moves.urllib.parse import quote
 
 from .lazylogger import LazyLogger
 
@@ -38,6 +39,9 @@ class HomeWindow:
 
 
 def add_menu_directory_item(label, path, folder=True, art=None, properties=None):
+    if folder and "?" in path and path.startswith("plugin://plugin.video.jellycon"):
+        # lets the opened listing show this label as its title
+        path += "&title=" + quote(label)
     li = xbmcgui.ListItem(label, path=path, offscreen=True)
     if art is None:
         art = {}

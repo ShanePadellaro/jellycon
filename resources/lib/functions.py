@@ -79,6 +79,15 @@ def main_entry_point():
     request_path = params.get("request_path", None)
     param_url = params.get('url', None)
 
+    # Listing title for skins (Container.PluginCategory)
+    if params.get("title"):
+        try:
+            handle = int(sys.argv[1])
+        except (IndexError, ValueError):
+            handle = -1
+        if handle >= 0:
+            xbmcplugin.setPluginCategory(handle, params["title"])
+
     mode = params.get("mode", None)
 
     if (len(params) == 1 and request_path
