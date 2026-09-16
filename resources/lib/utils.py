@@ -257,6 +257,11 @@ def load_user_details():
         user_details['user_name'] = user_name
         user_details['user_id'] = user_id
         user_details['token'] = auth_token
+
+        # Profile picture for skins (Kodi shows the skin fallback if there is none)
+        server = settings.getSetting('server_address')
+        if server and user_id:
+            window.set_property('user_image', '{}/Users/{}/Images/Primary?Format=png&maxHeight=200'.format(server, user_id))
         return user_details
 
     else:
