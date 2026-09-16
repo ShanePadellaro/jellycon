@@ -114,6 +114,8 @@ def main_entry_point():
         show_movie_pages(params)
     elif mode == "TOGGLE_WATCHED":
         toggle_watched(params)
+    elif mode == "TOGGLE_FAVORITE":
+        toggle_favorite(params)
     elif mode == "SHOW_MENU":
         show_menu(params)
     elif mode == "CLONE_SKIN":
@@ -191,10 +193,43 @@ def toggle_watched(params):
     if user_data is None:
         return
 
-    if user_data.get("Played", False) is False:
+    played = not user_data.get("Played", False)
+    set_info_item_state(item_id, "played", played)
+    if played:
         mark_item_watched(item_id)
     else:
         mark_item_unwatched(item_id)
+
+
+def toggle_favorite(params):
+    log.debug("toggle_favorite: {0}".format(params))
+    item_id = params.get("item_id", None)
+    if item_id is None:
+        return
+    url = "/Users/{}/Items/{}?format=json".format(api.user_id, item_id)
+    result = api.get(url) or {}
+
+    user_data = result.get("UserData", None)
+    if user_data is None:
+        return
+
+    favorite = not user_data.get("IsFavorite", False)
+    set_info_item_state(item_id, "favorite", favorite)
+    if favorite:
+        mark_item_favorite(item_id)
+    else:
+        unmark_item_favorite(item_id)
+
+
+def set_info_item_state(item_id, key, value):
+    # Kodi's info dialog never refreshes its list item, so skins read the
+    # latest toggle result from these properties instead
+    home_window = HomeWindow()
+    if home_window.get_property("info_item_id") != item_id:
+        home_window.clear_property("info_item_played")
+        home_window.clear_property("info_item_favorite")
+    home_window.set_property("info_item_id", item_id)
+    home_window.set_property("info_item_" + key, "true" if value else "false")
 
 
 def mark_item_watched(item_id):
