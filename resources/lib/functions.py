@@ -116,6 +116,8 @@ def main_entry_point():
         toggle_watched(params)
     elif mode == "TOGGLE_FAVORITE":
         toggle_favorite(params)
+    elif mode == "SHOW_INFO":
+        show_item_info(params)
     elif mode == "SHOW_MENU":
         show_menu(params)
     elif mode == "CLONE_SKIN":
@@ -219,6 +221,35 @@ def toggle_favorite(params):
         mark_item_favorite(item_id)
     else:
         unmark_item_favorite(item_id)
+
+
+def show_item_info(params):
+    # Open Kodi's info dialog for one item, built like the items in our lists.
+    # Skins use this from inside the info dialog, where Action(Info) closes it.
+    item_id = params.get("item_id", None)
+    if item_id is None:
+        return
+    url = get_jellyfin_url("/Users/{userid}/Items", {
+        "Ids": item_id,
+        "Fields": get_default_filters(),
+        "ImageTypeLimit": 1,
+    })
+    list_params = {"mode": "SHOW_INFO", "name_format": "Episode|episode_name_format"}
+    dir_items, detected_type, total_records = process_directory(url, None, list_params)
+    if not dir_items:
+        return
+    item_url, list_item, is_folder = dir_items[0]
+    list_item.setPath(item_url)
+
+    # Reusing an open dialog leaves its hidden lists unrefreshed, so close it first
+    if xbmc.getCondVisibility("Window.IsActive(movieinformation)"):
+        xbmc.executebuiltin("Dialog.Close(movieinformation,true)")
+        monitor = xbmc.Monitor()
+        waited = 0
+        while xbmc.getCondVisibility("Window.IsActive(movieinformation)") and waited < 20:
+            monitor.waitForAbort(0.05)
+            waited += 1
+    xbmcgui.Dialog().info(list_item)
 
 
 def set_info_item_state(item_id, key, value):

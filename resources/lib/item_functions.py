@@ -478,6 +478,9 @@ def add_gui_item(url, item_details, display_options, folder=True, default_sort=F
     if hasattr(video_tag, "setTitle"):
         # Kodi 20 and newer
         video_tag.setTitle(list_item_name)
+        if item_details.item_type == "Episode":
+            # unformatted episode name, since the title may use episode_name_format
+            video_tag.setOriginalTitle(item_details.original_title)
         if item_details.cast:
             cast = []
             # Has to be done at runtime because Actor objects cannot be pickled/cached
@@ -505,6 +508,8 @@ def add_gui_item(url, item_details, display_options, folder=True, default_sort=F
     else:
         # Kodi 19
         info_labels["title"] = list_item_name
+        if item_details.item_type == "Episode":
+            info_labels["originaltitle"] = item_details.original_title
         if item_details.cast:
             list_item.setCast(item_details.cast)
         if item_details.sort_name:

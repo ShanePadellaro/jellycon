@@ -358,7 +358,9 @@ def get_widget_content_cast(handle, params):
             if person_role:
                 list_item.setLabel2(person_role)
 
-            item_tuple = ("", list_item, False)
+            # Opening a person lists the titles they appear in
+            action_url = "plugin://plugin.video.jellycon/?mode=NEW_SEARCH_PERSON&person_id={}".format(person_id)
+            item_tuple = (action_url, list_item, True)
             list_items.append(item_tuple)
 
     xbmcplugin.setContent(handle, 'artists')
