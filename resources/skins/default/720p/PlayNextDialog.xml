@@ -16,7 +16,7 @@
 			<top>494</top>
 			<width>460</width>
 			<height>196</height>
-			<texture border="16" colordiffuse="F0202020">rounded.png</texture>
+			<texture border="16" colordiffuse="FF202020">rounded.png</texture>
 		</control>
 
 		<control type="label">

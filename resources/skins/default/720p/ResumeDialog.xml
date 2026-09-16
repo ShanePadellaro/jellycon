@@ -15,7 +15,7 @@
 			<top>0</top>
 			<width>400</width>
 			<height>176</height>
-			<texture border="16" colordiffuse="F0202020">rounded.png</texture>
+			<texture border="16" colordiffuse="FF202020">rounded.png</texture>
 		</control>
 
 		<!-- labels are set by JellyCon: resume from / start from beginning -->
