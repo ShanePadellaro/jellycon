@@ -1,25 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window id="10000">
 	<defaultcontrol always="true">9000</defaultcontrol>
-    <zorder>2</zorder>
+	<zorder>2</zorder>
 	<coordinates>
 		<system>1</system>
 		<left>0</left>
 		<top>0</top>
 	</coordinates>
+	<animation effect="fade" time="250">WindowOpen</animation>
+	<animation effect="fade" time="250">WindowClose</animation>
 
-    <controls>
-        <control type="button" id="9000">
-			<left>1020</left>
-			<top>550</top>
-			<width>150</width>
-			<height>65</height>
-			<visible>true</visible>
+	<controls>
+		<!-- Jellyfin-style rounded "Skip" button, bottom right -->
+		<control type="button" id="9000">
+			<left>1030</left>
+			<top>600</top>
+			<width>200</width>
+			<height>52</height>
 			<label>Skip</label>
 			<align>center</align>
-			<texture border="1" colordiffuse="ff161616">white.png</texture>
-			<font>font12</font>
-			<onright>3014</onright>
+			<aligny>center</aligny>
+			<textoffsetx>30</textoffsetx>
+			<font>font27</font>
+			<textcolor>FFFFFFFF</textcolor>
+			<focusedcolor>FFFFFFFF</focusedcolor>
+			<texturefocus border="16" colordiffuse="FF00A4DC">rounded.png</texturefocus>
+			<texturenofocus border="16" colordiffuse="CC202020">rounded.png</texturenofocus>
 		</control>
-    </controls>
+		<control type="image">
+			<left>1192</left>
+			<top>615</top>
+			<width>22</width>
+			<height>22</height>
+			<texture>skip.png</texture>
+		</control>
+	</controls>
 </window>

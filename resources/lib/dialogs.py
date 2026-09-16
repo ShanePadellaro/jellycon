@@ -161,8 +161,12 @@ class PlayNextDialog(xbmcgui.WindowXMLDialog):
         self.action_exitkeys_id = [10, 13]
 
         index = self.episode_info.get("IndexNumber", -1)
+        season = self.episode_info.get("ParentIndexNumber")
         series_name = self.episode_info.get("SeriesName")
-        next_epp_name = "Episode %02d - (%s)" % (index, self.episode_info.get("Name", "n/a"))
+        if season is not None:
+            next_epp_name = "S%d:E%d · %s" % (season, index, self.episode_info.get("Name", "n/a"))
+        else:
+            next_epp_name = "Episode %02d - (%s)" % (index, self.episode_info.get("Name", "n/a"))
 
         series_label = self.getControl(3011)
         series_label.setLabel(series_name)
