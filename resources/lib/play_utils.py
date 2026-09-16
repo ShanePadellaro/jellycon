@@ -1684,6 +1684,23 @@ def get_item_playback_info(item_id, force_transcode):
     if force_transcode:
         profile['DirectPlayProfiles'] = []
 
+    if settings.getSetting("force_transcode_dovi") == "true":
+        # Only DV profile 5 ("DOVI") lacks a fallback layer; DV with an
+        # HDR10/HLG/SDR base layer still direct plays.
+        # No Codec key, so this applies to every video codec (hevc, av1, h264)
+        profile['CodecProfiles'].append(
+            {
+                "Type": "Video",
+                "Conditions": [
+                    {
+                        "Condition": "NotEquals",
+                        "Property": "VideoRangeType",
+                        "Value": "DOVI"
+                    }
+                ]
+            }
+        )
+
     if settings.getSetting("playback_video_force_8") == "true":
         profile['CodecProfiles'].append(
             {
