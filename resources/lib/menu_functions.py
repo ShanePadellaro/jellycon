@@ -715,7 +715,7 @@ def display_tvshow_type(menu_params, view):
         base_params["ParentId"] = view.get("Id")
     path = get_jellyfin_url("/Users/{userid}/Items", base_params)
 
-    if settings.getSetting("interface_mode") == "1":
+    if open_listing_directly(menu_params):
         get_content(path, { "media_type": "tvshows" })
         return
 
@@ -827,7 +827,7 @@ def display_music_type(menu_params, view):
     }
     path = get_jellyfin_url("/Users/{userid}/Items", params)
 
-    if settings.getSetting("interface_mode") == "1":
+    if open_listing_directly(menu_params):
         get_content(path, { "media_type": "MusicAlbums" })
         return
 
@@ -1000,7 +1000,7 @@ def display_movies_type(menu_params, view):
     # All Movies
     path = get_jellyfin_url("/Users/{userid}/Items", base_params)
 
-    if settings.getSetting("interface_mode") == "1":
+    if open_listing_directly(menu_params):
         get_content(path, { "media_type": "movies" })
         return
 
@@ -1142,7 +1142,7 @@ def display_mixed_type(params, view):
         base_params["ParentId"] = view.get("Id")
     path = get_jellyfin_url("/Users/{userid}/Items", base_params)
 
-    if settings.getSetting("interface_mode") == "1":
+    if open_listing_directly(params):
         get_content(path, { "media_type": "mixed" })
         return
 
@@ -1257,6 +1257,8 @@ def display_library_views(params):
             art['landscape'] = get_art_url(view, "Primary", server=server)
 
             plugin_path = "plugin://plugin.video.jellycon/?mode=SHOW_ADDON_MENU&type=library_item&view_id=" + view.get("Id")
+            if params and params.get("direct") == "true":
+                plugin_path += "&direct=true"
 
             if collection_type == "playlists":
                 plugin_path = get_playlist_path(view)
@@ -1310,6 +1312,14 @@ def get_channel_path(view):
     path = get_jellyfin_url("/Users/{userid}/Items", params)
     url = sys.argv[0] + "?url=" + quote(path) + "&mode=GET_CONTENT&media_type=files"
     return url
+
+
+def open_listing_directly(menu_params):
+    # Skip the per-library menu and open the full listing: always in the simple
+    # interface mode, or when the caller (e.g. a skin) passes direct=true
+    if settings.getSetting("interface_mode") == "1":
+        return True
+    return bool(menu_params) and menu_params.get("direct") == "true"
 
 
 def display_library_view(params):
