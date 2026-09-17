@@ -4,6 +4,7 @@ from __future__ import (
 
 import sys
 import os
+import json
 import time
 import cProfile
 import pstats
@@ -166,7 +167,10 @@ def main_entry_point():
         if mode == "GET_CONTENT":
             get_content(param_url, params)
         elif mode == "PLAY":
-            play_action(params)
+            if select_opens_info(params):
+                show_item_info(params)
+            else:
+                play_action(params)
         else:
             check_server()
             display_main_menu()
@@ -230,6 +234,34 @@ def toggle_favorite(params):
         mark_item_favorite(item_id)
     else:
         unmark_item_favorite(item_id)
+
+
+def select_opens_info(params):
+    # Kodi only applies "Default select action" to playable items, and ours
+    # are played by this script, so selecting one in a list always played it.
+    # Honour "Show information" for plain selections from the Videos window.
+    if not params.get("item_id") or params.get("play") == "true":
+        return False
+    if any(key in params for key in ("auto_resume", "force_transcode", "media_source_id", "action")):
+        return False
+    try:
+        handle = int(sys.argv[1])
+    except (IndexError, ValueError):
+        handle = -1
+    if handle >= 0:
+        # Kodi's player is resolving the item, e.g. the info dialog's Play button
+        return False
+    if not xbmc.getCondVisibility("Window.IsActive(videos)"):
+        return False
+
+    request = {"jsonrpc": "2.0", "id": 1, "method": "Settings.GetSettingValue",
+               "params": {"setting": "myvideos.selectaction"}}
+    try:
+        response = json.loads(xbmc.executeJSONRPC(json.dumps(request)))
+        select_action = response["result"]["value"]
+    except (ValueError, KeyError, TypeError):
+        return False
+    return select_action == 3  # SELECT_ACTION_INFO
 
 
 def show_item_info(params):
