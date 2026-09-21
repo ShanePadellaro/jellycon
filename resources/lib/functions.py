@@ -168,7 +168,11 @@ def main_entry_point():
             get_content(param_url, params)
         elif mode == "PLAY":
             if select_opens_info(params):
-                show_item_info(params)
+                # Kodi is waiting for this call to finish, so hand the dialog to a
+                # separate invocation: opening a modal dialog here deadlocks Kodi
+                # (the Xbox build freezes on the busy spinner)
+                xbmc.executebuiltin("RunPlugin({}?mode=SHOW_INFO&item_id={})".format(
+                    sys.argv[0], params["item_id"]))
             else:
                 play_action(params)
         else:
