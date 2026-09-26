@@ -4,6 +4,7 @@ from __future__ import (
 
 import sys
 import os
+import json
 import time
 import cProfile
 import pstats
@@ -79,6 +80,15 @@ def main_entry_point():
     request_path = params.get("request_path", None)
     param_url = params.get('url', None)
 
+    # Listing title for skins (Container.PluginCategory)
+    if params.get("title"):
+        try:
+            handle = int(sys.argv[1])
+        except (IndexError, ValueError):
+            handle = -1
+        if handle >= 0:
+            xbmcplugin.setPluginCategory(handle, params["title"])
+
     mode = params.get("mode", None)
 
     if (len(params) == 1 and request_path
@@ -114,6 +124,10 @@ def main_entry_point():
         show_movie_pages(params)
     elif mode == "TOGGLE_WATCHED":
         toggle_watched(params)
+    elif mode == "TOGGLE_FAVORITE":
+        toggle_favorite(params)
+    elif mode == "SHOW_INFO":
+        show_item_info(params)
     elif mode == "SHOW_MENU":
         show_menu(params)
     elif mode == "CLONE_SKIN":
@@ -153,7 +167,14 @@ def main_entry_point():
         if mode == "GET_CONTENT":
             get_content(param_url, params)
         elif mode == "PLAY":
-            play_action(params)
+            if select_opens_info(params):
+                # Kodi is waiting for this call to finish, so hand the dialog to a
+                # separate invocation: opening a modal dialog here deadlocks Kodi
+                # (the Xbox build freezes on the busy spinner)
+                xbmc.executebuiltin("RunPlugin({}?mode=SHOW_INFO&item_id={})".format(
+                    sys.argv[0], params["item_id"]))
+            else:
+                play_action(params)
         else:
             check_server()
             display_main_menu()
@@ -191,10 +212,100 @@ def toggle_watched(params):
     if user_data is None:
         return
 
-    if user_data.get("Played", False) is False:
+    played = not user_data.get("Played", False)
+    set_info_item_state(item_id, "played", played)
+    if played:
         mark_item_watched(item_id)
     else:
         mark_item_unwatched(item_id)
+
+
+def toggle_favorite(params):
+    log.debug("toggle_favorite: {0}".format(params))
+    item_id = params.get("item_id", None)
+    if item_id is None:
+        return
+    url = "/Users/{}/Items/{}?format=json".format(api.user_id, item_id)
+    result = api.get(url) or {}
+
+    user_data = result.get("UserData", None)
+    if user_data is None:
+        return
+
+    favorite = not user_data.get("IsFavorite", False)
+    set_info_item_state(item_id, "favorite", favorite)
+    if favorite:
+        mark_item_favorite(item_id)
+    else:
+        unmark_item_favorite(item_id)
+
+
+def select_opens_info(params):
+    # Kodi only applies "Default select action" to playable items, and ours
+    # are played by this script, so selecting one in a list always played it.
+    # Honour "Show information" for plain selections from the Videos window.
+    if not params.get("item_id") or params.get("play") == "true":
+        return False
+    if any(key in params for key in ("auto_resume", "force_transcode", "media_source_id", "action")):
+        return False
+    try:
+        handle = int(sys.argv[1])
+    except (IndexError, ValueError):
+        handle = -1
+    if handle >= 0:
+        # Kodi's player is resolving the item, e.g. the info dialog's Play button
+        return False
+    if not xbmc.getCondVisibility("Window.IsActive(videos)"):
+        return False
+
+    request = {"jsonrpc": "2.0", "id": 1, "method": "Settings.GetSettingValue",
+               "params": {"setting": "myvideos.selectaction"}}
+    try:
+        response = json.loads(xbmc.executeJSONRPC(json.dumps(request)))
+        select_action = response["result"]["value"]
+    except (ValueError, KeyError, TypeError):
+        return False
+    return select_action == 3  # SELECT_ACTION_INFO
+
+
+def show_item_info(params):
+    # Open Kodi's info dialog for one item, built like the items in our lists.
+    # Skins use this from inside the info dialog, where Action(Info) closes it.
+    item_id = params.get("item_id", None)
+    if item_id is None:
+        return
+    url = get_jellyfin_url("/Users/{userid}/Items", {
+        "Ids": item_id,
+        "Fields": get_default_filters(),
+        "ImageTypeLimit": 1,
+    })
+    list_params = {"mode": "SHOW_INFO", "name_format": "Episode|episode_name_format"}
+    dir_items, detected_type, total_records = process_directory(url, None, list_params)
+    if not dir_items:
+        return
+    item_url, list_item, is_folder = dir_items[0]
+    list_item.setPath(item_url)
+
+    # Reusing an open dialog leaves its hidden lists unrefreshed, so close it first
+    if xbmc.getCondVisibility("Window.IsActive(movieinformation)"):
+        xbmc.executebuiltin("Dialog.Close(movieinformation,true)")
+        monitor = xbmc.Monitor()
+        waited = 0
+        while xbmc.getCondVisibility("Window.IsActive(movieinformation)") and waited < 20:
+            monitor.waitForAbort(0.05)
+            waited += 1
+    xbmcgui.Dialog().info(list_item)
+
+
+def set_info_item_state(item_id, key, value):
+    # Kodi's info dialog never refreshes its list item, so skins read the
+    # latest toggle result from these properties instead
+    home_window = HomeWindow()
+    if home_window.get_property("info_item_id") != item_id:
+        home_window.clear_property("info_item_played")
+        home_window.clear_property("info_item_favorite")
+    home_window.set_property("info_item_id", item_id)
+    home_window.set_property("info_item_" + key, "true" if value else "false")
 
 
 def mark_item_watched(item_id):

@@ -1,49 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window id="3301" type="dialog">
 	<defaultcontrol always="true">3010</defaultcontrol>
-    <zorder>2</zorder>
+	<zorder>2</zorder>
 	<coordinates>
 		<system>1</system>
-		<left>450</left>
-		<top>280</top>
+		<left>440</left>
+		<top>270</top>
 	</coordinates>
+	<animation effect="fade" time="200">WindowOpen</animation>
+	<animation effect="fade" time="200">WindowClose</animation>
 	<controls>
-    
 		<control type="image">
 			<left>0</left>
 			<top>0</top>
-			<width>380</width>
-			<height>160</height>
-			<texture border="40">bg.png</texture>
-		</control>	
-	
-        <control type="button" id="3010">
-			<texturenofocus border="1" colordiffuse="ff161616">white.png</texturenofocus>
-			<texturefocus border="1" colordiffuse="ff525252">white.png</texturefocus>
-            <left>20</left>
-            <top>30</top>
-            <width>340</width>
-            <height>40</height>
-            <label></label>
-            <onup></onup>
-            <ondown>3011</ondown>
-            <font>font14</font>
-            <align>center</align>
-        </control>
-           
-        <control type="button" id="3011">
-			<texturenofocus border="1" colordiffuse="ff161616">white.png</texturenofocus>
-			<texturefocus border="1" colordiffuse="ff525252">white.png</texturefocus>		
-            <left>20</left>
-            <top>90</top>
-            <width>340</width>
-            <height>40</height>
-            <label></label>
-            <onup>3010</onup>
-            <ondown>3012</ondown>
-            <font>font14</font>
-            <align>center</align>
-        </control>       
+			<width>400</width>
+			<height>176</height>
+			<texture border="16" colordiffuse="FF202020">rounded.png</texture>
+		</control>
 
+		<!-- labels are set by JellyCon: resume from / start from beginning -->
+		<control type="button" id="3010">
+			<left>24</left>
+			<top>28</top>
+			<width>352</width>
+			<height>54</height>
+			<label></label>
+			<ondown>3011</ondown>
+			<font>font27</font>
+			<align>center</align>
+			<aligny>center</aligny>
+			<textcolor>FFFFFFFF</textcolor>
+			<focusedcolor>FFFFFFFF</focusedcolor>
+			<texturefocus border="16" colordiffuse="FF00A4DC">rounded.png</texturefocus>
+			<texturenofocus border="16" colordiffuse="1FFFFFFF">rounded.png</texturenofocus>
+		</control>
+
+		<control type="button" id="3011">
+			<left>24</left>
+			<top>98</top>
+			<width>352</width>
+			<height>54</height>
+			<label></label>
+			<onup>3010</onup>
+			<ondown>3012</ondown>
+			<font>font27</font>
+			<align>center</align>
+			<aligny>center</aligny>
+			<textcolor>FFFFFFFF</textcolor>
+			<focusedcolor>FFFFFFFF</focusedcolor>
+			<texturefocus border="16" colordiffuse="FF00A4DC">rounded.png</texturefocus>
+			<texturenofocus border="16" colordiffuse="1FFFFFFF">rounded.png</texturenofocus>
+		</control>
 	</controls>
 </window>

@@ -1077,6 +1077,9 @@ def prompt_for_stop_actions(item_id, data):
     next_episode = data.get("next_episode")
     item_type = data.get("item_type")
 
+    # Read the settings now: the module-level Addon object in this long-running
+    # service keeps the values from when Kodi started
+    settings = xbmcaddon.Addon()
     prompt_next_percentage = int(settings.getSetting('promptPlayNextEpisodePercentage'))
     play_prompt = settings.getSetting('promptPlayNextEpisodePercentage_prompt') == "true"
     prompt_delete_episode_percentage = int(settings.getSetting('promptDeleteEpisodePercentage'))

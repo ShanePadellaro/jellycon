@@ -358,7 +358,9 @@ def get_widget_content_cast(handle, params):
             if person_role:
                 list_item.setLabel2(person_role)
 
-            item_tuple = ("", list_item, False)
+            # Opening a person lists the titles they appear in
+            action_url = "plugin://plugin.video.jellycon/?mode=NEW_SEARCH_PERSON&person_id={}".format(person_id)
+            item_tuple = (action_url, list_item, True)
             list_items.append(item_tuple)
 
     xbmcplugin.setContent(handle, 'artists')
@@ -561,10 +563,56 @@ def get_widget_content(handle, params):
             "SortOrder": "Ascending",
         })
 
+    elif widget_type in ("favorites_movies", "favorites_tvshows", "favorites_episodes"):
+        item_type, content = {
+            "favorites_movies": ("Movie", "movies"),
+            "favorites_tvshows": ("Series", "tvshows"),
+            "favorites_episodes": ("Episode", "episodes"),
+        }[widget_type]
+        xbmcplugin.setContent(handle, content)
+        url_params.update({
+            "Filters": "IsFavorite",
+            "IncludeItemTypes": item_type,
+            "Recursive": True,
+            "SortBy": "SortName",
+            "SortOrder": "Ascending",
+        })
+
+    # Lists tied to one item, used by the skin's details pages (params["id"])
+    elif widget_type == "similar":
+        url_verb = "/Items/{}/Similar".format(params.get("id"))
+        url_params["userId"] = user_id
+
+    elif widget_type == "nextup_series":
+        xbmcplugin.setContent(handle, 'episodes')
+        url_verb = "/Shows/NextUp"
+        url_params["userid"] = user_id
+        url_params["SeriesId"] = params.get("id")
+        url_params["enableResumable"] = True
+        url_params["Limit"] = 1
+
+    elif widget_type == "series_seasons":
+        xbmcplugin.setContent(handle, 'seasons')
+        url_verb = "/Shows/{}/Seasons".format(params.get("id"))
+        url_params["userId"] = user_id
+
+    elif widget_type == "season_episodes":
+        # id may be an episode or a season; list every episode of that season
+        xbmcplugin.setContent(handle, 'episodes')
+        item = api.get("/Users/{}/Items/{}".format(user_id, params.get("id"))) or {}
+        if item.get("Type") == "Season":
+            season_id, series_id = item.get("Id"), item.get("SeriesId")
+        else:
+            season_id, series_id = item.get("SeasonId"), item.get("SeriesId")
+        url_verb = "/Shows/{}/Episodes".format(series_id)
+        url_params["userId"] = user_id
+        url_params["seasonId"] = season_id
+        url_params.pop("Limit", None)
+
     items_url = get_jellyfin_url(url_verb, url_params)
 
     if (url_params.get('IncludeItemTypes', '') == 'Episode' or
-            params.get('type', '') == 'nextup_episodes'):
+            params.get('type', '') in ('nextup_episodes', 'nextup_series')):
         params["name_format"] = "Episode|episode_name_format"
 
     list_items, detected_type, total_records = process_directory(

@@ -1,67 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window id="3301" type="dialog">
 	<defaultcontrol always="true">3013</defaultcontrol>
-    <zorder>2</zorder>
+	<zorder>2</zorder>
 	<coordinates>
 		<system>1</system>
 		<left>0</left>
 		<top>0</top>
 	</coordinates>
-    <controls>
-
+	<animation effect="fade" time="250">WindowOpen</animation>
+	<animation effect="fade" time="250">WindowClose</animation>
+	<controls>
+		<!-- Jellyfin-style "Up next" card, bottom right -->
 		<control type="image" id="3010">
-			<left>0</left>
-			<top>0</top>
-			<width>1280</width>
-			<height>52</height>
-			<texture border="0" colordiffuse="BBFFFFFF">bg.png</texture>
+			<left>790</left>
+			<top>494</top>
+			<width>460</width>
+			<height>196</height>
+			<texture border="16" colordiffuse="FF202020">rounded.png</texture>
+		</control>
+
+		<control type="label">
+			<left>814</left>
+			<top>508</top>
+			<width>412</width>
+			<height>26</height>
+			<label>Up next</label>
+			<font>font25_narrow</font>
+			<textcolor>FF999999</textcolor>
 		</control>
 
 		<control type="label" id="3011">
-			<left>20</left>
-			<top>0</top>
-			<width>390</width>
-			<height>45</height>
+			<left>814</left>
+			<top>534</top>
+			<width>412</width>
+			<height>36</height>
 			<label></label>
-			<font>font45_title</font>
-			<align>left</align>
+			<font>font36_title</font>
+			<textcolor>FFFFFFFF</textcolor>
 		</control>
 
 		<control type="label" id="3012">
-			<left>390</left>
-			<top>5</top>
-			<width>500</width>
-			<height>35</height>
+			<left>814</left>
+			<top>572</top>
+			<width>412</width>
+			<height>30</height>
 			<label></label>
-			<font>font14</font>
-			<align>center</align>
+			<font>font27</font>
+			<textcolor>DDFFFFFF</textcolor>
 		</control>
 
 		<control type="button" id="3013">
-			<left>1020</left>
-			<top>-8</top>
-			<width>150</width>
-			<height>65</height>
-			<visible>true</visible>
+			<left>814</left>
+			<top>620</top>
+			<width>200</width>
+			<height>48</height>
 			<label>Play Next</label>
 			<align>center</align>
-			<texture border="1" colordiffuse="ff161616">white.png</texture>
-			<font>font12</font>
+			<aligny>center</aligny>
+			<font>font27</font>
+			<textcolor>FFFFFFFF</textcolor>
+			<focusedcolor>FFFFFFFF</focusedcolor>
+			<texturefocus border="16" colordiffuse="FF00A4DC">rounded.png</texturefocus>
+			<texturenofocus border="16" colordiffuse="1FFFFFFF">rounded.png</texturenofocus>
 			<onright>3014</onright>
 		</control>
 
 		<control type="button" id="3014">
-			<left>1140</left>
-			<top>-8</top>
-			<width>150</width>
-			<height>65</height>
-			<visible>true</visible>
+			<left>1026</left>
+			<top>620</top>
+			<width>200</width>
+			<height>48</height>
 			<label>Close</label>
 			<align>center</align>
-			<texture border="1" colordiffuse="ff161616">white.png</texture>
-			<font>font12</font>
+			<aligny>center</aligny>
+			<font>font27</font>
+			<textcolor>FFFFFFFF</textcolor>
+			<focusedcolor>FFFFFFFF</focusedcolor>
+			<texturefocus border="16" colordiffuse="FF00A4DC">rounded.png</texturefocus>
+			<texturenofocus border="16" colordiffuse="1FFFFFFF">rounded.png</texturenofocus>
 			<onleft>3013</onleft>
 		</control>
-
 	</controls>
 </window>

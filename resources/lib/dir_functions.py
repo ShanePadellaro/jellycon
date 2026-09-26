@@ -304,8 +304,10 @@ def process_directory(url, progress, params, use_cache_data=False):
     # flatten single season
     # if there is only one result and it is a season and you have flatten single season turned on then
     # build a new url, set the content media type and call get content again
+    # (not for widgets or the info dialog: they need the item itself)
     flatten_single_season = settings.getSetting("flatten_single_season") == "true"
-    if flatten_single_season and len(item_list) == 1 and item_list[0].item_type == "Season":
+    if (flatten_single_season and len(item_list) == 1 and item_list[0].item_type == "Season" and
+            params.get("mode") not in ("WIDGET_CONTENT", "SHOW_INFO")):
         season_id = item_list[0].id
         series_id = item_list[0].series_id
         season_url = ('/Shows/' + series_id +
